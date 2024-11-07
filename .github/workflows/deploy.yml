@@ -49,10 +49,10 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Docker images
       run: |
-        docker build . -t ${{ github.repository }}:develop
+        docker build . -t "ghcr.io/"${{ github.repository }}:develop
     - name: Push Docker image to registry
       run: |
-        docker push ${{ github.repository }}:develop
+        docker push "ghcr.io/"${{ github.repository }}:develop
 
   deploy:
     runs-on: ubuntu-latest
