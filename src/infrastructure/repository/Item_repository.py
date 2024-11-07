@@ -1,5 +1,8 @@
-from src.core.abstractions.infrastructure.repository.item_repository_abstract import IItemRepository
+from src.core.abstractions.infrastructure.repository.item_repository_abstract import (
+    IItemRepository
+)
 from src.core.models.item_domain import ItemDomain
+
 
 class ItemRepository(IItemRepository):
     def __init__(self):
@@ -11,7 +14,10 @@ class ItemRepository(IItemRepository):
             {"item_id": 2, "item": "Item B"},
             {"item_id": 3, "item": "Item C"}
         ]
-        row = next((row for row in self.fake_data if row["item_id"] == item_id), None)
+        row = next(
+            (row for row in self.fake_data if row["item_id"] == item_id),
+            None
+        )
         if row:
             return ItemDomain(
                 item_id=row["item_id"],

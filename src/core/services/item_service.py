@@ -1,6 +1,8 @@
-from src.core.abstractions.infrastructure.repository.item_repository_abstract import IItemRepository
+from src.core.abstractions.infrastructure.repository.item_repository_abstract import (
+    IItemRepository)
 from src.core.abstractions.services.item_service_abstract import IItemService
 from src.core.models.item_domain import ItemDomain
+
 
 class ItemService(IItemService):
 
