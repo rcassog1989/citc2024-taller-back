@@ -1,8 +1,8 @@
 name: Develop - Deploy Backend
 on:
-    push:
-        branches:
-            - develop
+  push:
+    branches:
+      - develop
 
 jobs:
   build:
@@ -13,7 +13,6 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
-        cache: 'pip'
     - run: pip install -r requirements.txt
     - name: Lint code
       run: |
@@ -28,11 +27,9 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
-        cache: 'pip'
     - run: pip install -r requirements.txt
     - name: Run tests
       run: |
-        source .venv/bin/activate
         pytest
 
   docker-package:
