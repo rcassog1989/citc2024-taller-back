@@ -1,0 +1,80 @@
+name: Develop - Deploy Backend
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - run: pip install -r requirements.txt
+    - name: Lint code
+      run: |
+        flake8 src
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - run: pip install -r requirements.txt
+    - name: Run tests
+      run: |
+        pytest
+
+  docker-package:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    if: ${{github.ref == 'refs/heads/develop'}}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Login to Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build Docker images
+      run: |
+        docker build . -t ghcr.io/${{ github.repository }}:develop
+    - name: Push Docker image to registry
+      run: |
+        docker push ghcr.io/${{ github.repository }}:develop
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker-package
+    if: ${{github.ref == 'refs/heads/develop'}}
+    steps:
+      - name: Setup SSH connection
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEVELOP_SSH_SECRET }}
+
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ vars.DEVELOP_SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Login to the GitHub Packages Docker Registry
+        run: ssh ${{ vars.DEVELOP_SSH_USERNAME }}@${{ vars.DEVELOP_SSH_HOST }} "echo ${{ secrets.DOCKER_REGISTRY_TOKEN }} | docker login ghcr.io -u ${{ vars.DOCKER_REGISTRY_USER }}" --password-stdin
+
+      - name: Run docker-compose
+        run: ssh ${{ vars.DEVELOP_SSH_USERNAME }}@${{ vars.DEVELOP_SSH_HOST }} "cd backend && docker compose up -d"
+
+      - name: Delete unused images
+        run: ssh ${{ vars.DEVELOP_SSH_USERNAME }}@${{ vars.DEVELOP_SSH_HOST }} "docker image prune -f"
+
+      - name: Logout from the GitHub Packages Docker Registry
+        run: ssh ${{ vars.DEVELOP_SSH_USERNAME }}@${{ vars.DEVELOP_SSH_HOST }} "docker logout ghcr.io"
