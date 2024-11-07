@@ -102,6 +102,64 @@ EXPOSE 8000
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "debug"]
 ```
 
+## Pasos del Workflow
+
+### 1. Construcción
+
+- **Se ejecuta en**: `ubuntu-latest`
+- **Pasos**:
+  - Descarga el código usando `actions/checkout@v4`.
+  - Configura Python 3.9 utilizando `actions/setup-python@v4`.
+  - Instala las dependencias desde `requirements.txt`.
+  - Ejecuta análisis de estilo de código con `flake8` en el directorio `src`.
+
+### 2. Pruebas
+
+- **Se ejecuta en**: `ubuntu-latest`
+- **Dependencias**: Este trabajo requiere que el trabajo de `construcción` se complete exitosamente.
+- **Pasos**:
+  - Descarga el código.
+  - Configura Python 3.9.
+  - Instala las dependencias.
+  - Ejecuta las pruebas con `pytest`.
+
+### 3. Empaquetado en Docker
+
+- **Se ejecuta en**: `ubuntu-latest`
+- **Dependencias**: Requiere que el trabajo de `pruebas` pase exitosamente.
+- **Condiciones**: Solo se ejecuta en la rama `develop`.
+- **Pasos**:
+  - Inicia sesión en el Registro de Contenedores de GitHub.
+  - Construye la imagen de Docker etiquetada como `ghcr.io/<nombre-repositorio>:develop`.
+  - Envía la imagen de Docker al Registro de Contenedores de GitHub.
+
+### 4. Despliegue
+
+- **Se ejecuta en**: `ubuntu-latest`
+- **Dependencias**: Requiere que el trabajo de `empaquetado en Docker` sea exitoso.
+- **Condiciones**: Solo se ejecuta en la rama `develop`.
+- **Pasos**:
+  - Configura la conexión SSH al servidor remoto usando `webfactory/ssh-agent@v0.9.0` y la clave SSH privada almacenada en los secretos.
+  - Agrega la clave de host del servidor SSH a los hosts conocidos.
+  - Inicia sesión en el registro de Docker en el servidor remoto.
+  - Ejecuta `docker-compose` en el directorio `backend` del servidor para iniciar la aplicación.
+  - Elimina las imágenes de Docker no utilizadas para liberar espacio.
+  - Cierra sesión del registro de Docker en el servidor remoto.
+
+## Variables de Entorno y Secretos
+
+Las siguientes variables de entorno y secretos se utilizan en este workflow:
+
+- **Variables de Entorno**:
+  - `DEVELOP_SSH_HOST`: Nombre de host o dirección IP del servidor de despliegue.
+  - `DEVELOP_SSH_USERNAME`: Nombre de usuario para el acceso SSH.
+  - `DOCKER_REGISTRY_USER`: Nombre de usuario para el registro de Docker.
+
+- **Secretos**:
+  - `DEVELOP_SSH_SECRET`: Clave SSH privada para el acceso al servidor de despliegue.
+  - `GITHUB_TOKEN`: Token de GitHub para autenticación en el Registro de Contenedores de GitHub.
+  - `DOCKER_REGISTRY_TOKEN`: Token del registro de Docker para iniciar sesión en el registro de contenedores.
+
 ## Licencia
 
 Este proyecto está bajo la Licencia MIT. Para más detalles, consulta el archivo `LICENSE`.
