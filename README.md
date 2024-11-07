@@ -1,93 +1,107 @@
-# citc2024-taller-back
 
+# FastAPI Application with Docker
 
+Este proyecto es una aplicación API construida con FastAPI y Docker. La estructura de carpetas es `core`, `infrastructure`, `presentation`, para mantener la arquitectura limpia y modular.
 
-## Getting started
+## Estructura de Archivos
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+El proyecto sigue la siguiente estructura de carpetas:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/starsaminf/citc2024-taller-back.git
-git branch -M main
-git push -uf origin main
+.
+├── main.py                    # Archivo principal para iniciar la aplicación FastAPI
+├── Dockerfile                 # Archivo Docker para crear una imagen de la aplicación
+├── requirements.txt           # Lista de dependencias de Python
+├── src/                       # Carpeta principal del código fuente
+│   ├── core/                  # Módulos centrales, abstracciones y servicios
+│   ├── infrastructure/        # Implementación de dependencias y repositorios
+│   ├── presentation/          # Controladores para manejar las rutas de la API
 ```
 
-## Integrate with your tools
+## Configuración
 
-- [ ] [Set up project integrations](https://gitlab.com/starsaminf/citc2024-taller-back/-/settings/integrations)
+1. **Crea un fork de este repositorio**:
 
-## Collaborate with your team
+   ```bash
+   https://github.com/samuelloza/citc2024-taller-back
+   ```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+2. **Clone este repositorio**
 
-## Test and Deploy
+   ```bash
+   git clone url
+   cd citc2024-taller-back
+   ```
 
-Use the built-in continuous integration in GitLab.
+3. **Crea un entorno virtual**:
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # En Windows `venv\Scripts\activate`
+   ```
 
-***
+4. **Instala las dependencias del archivo `requirements.txt`**:
 
-# Editing this README
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+5. **Ejecuta el proyecto**:
 
-## Suggestions for a good README
+   ```bash
+   uvicorn main:app --host 0.0.0.0 --port 8000 --log-level debug
+   ```
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+   Esto levantará el servidor en `http://localhost:8000`.  
+   Para ver la documentación interactiva, abre `http://localhost:8000/docs` en tu navegador.
 
-## Name
-Choose a self-explaining name for your project.
+## Configuración con Docker
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Para construir la imagen de Docker de la aplicación, ejecuta el siguiente comando en el directorio raíz del proyecto:
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+```bash
+docker build -t citc2024-taller-back:develop .
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Este comando construirá una imagen de Docker llamada `citc2024-taller-back:develop` usando el `Dockerfile`
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## Ejecutar el Contenedor Docker
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Para ejecutar el contenedor de Docker una vez que la imagen se haya creado, usa el siguiente comando:
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```bash
+docker run -it -p 8000:8000 citc2024-taller-back:develop
+```
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Esto iniciará el servidor de FastAPI y estará disponible en `http://localhost:8000`.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## Uso
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+- Para verificar que el servidor está en ejecución, abre tu navegador y navega a `http://localhost:8000/docs` para acceder a la interfaz de documentación Swagger.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## Ejemplo de Dockerfile
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```Dockerfile
+# Usa una imagen base de Python
+FROM python:3.9-slim
 
-## License
-For open source projects, say how it is licensed.
+# Establece el directorio de trabajo
+WORKDIR /app
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+# Copia el archivo de requirements y lo instala
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia el resto de los archivos
+COPY . .
+
+# Expone el puerto que usará la aplicación
+EXPOSE 8000
+
+# Comando para iniciar la aplicación
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "debug"]
+```
+
+## Licencia
+
+Este proyecto está bajo la Licencia MIT. Para más detalles, consulta el archivo `LICENSE`.
