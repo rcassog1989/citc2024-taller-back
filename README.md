@@ -104,7 +104,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level"
 
 ## Pasos del Workflow
 
-### 1. Construcción
+### 1. Build
 
 - **Se ejecuta en**: `ubuntu-latest`
 - **Pasos**:
@@ -113,10 +113,10 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level"
   - Instala las dependencias desde `requirements.txt`.
   - Ejecuta análisis de estilo de código con `flake8` en el directorio `src`.
 
-### 2. Pruebas
+### 2. Test
 
 - **Se ejecuta en**: `ubuntu-latest`
-- **Dependencias**: Este trabajo requiere que el trabajo de `construcción` se complete exitosamente.
+- **Dependencias**: Este trabajo requiere que el trabajo de `Build` se complete exitosamente.
 - **Pasos**:
   - Descarga el código.
   - Configura Python 3.9.
