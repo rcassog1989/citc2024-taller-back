@@ -1,0 +1,49 @@
+name: Develop - Deploy Backend
+on:
+    push:
+        branches:
+            - develop
+
+jobs:
+  docker-package:
+    runs-on: ubuntu-latest
+    if: ${{github.ref == 'refs/heads/develop'}}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Login to Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build Docker images
+      run: |
+        docker build . -t ${{ github.repository }}:develop
+    - name: Push Docker image to registry
+      run: |
+        docker push ${{ github.repository }}:develop
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker-package
+    if: ${{github.ref == 'refs/heads/main'}}
+    steps:
+      - name: Setup SSH connection
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEVELOP_SSH_SECRET }}
+
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ vars.DEVELOP_SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Login to the GitHub Packages Docker Registry
+        run: ssh ${{ vars.DEVELOP_SSH_USERNAME }}@${{ vars.DEVELOP_SSH_HOST }} "echo ${{ secrets.DOCKER_REGISTRY_TOKEN }} | docker login ghcr.io -u ${{ vars.DOCKER_REGISTRY_USER }}" --password-stdin
+
+      - name: Run docker-compose
+        run: ssh ${{ vars.DEVELOP_SSH_USERNAME }}@${{ vars.DEVELOP_SSH_HOST }} "cd backend && docker compose up -d"
+
+      - name: Delete unused images
+        run: ssh ${{ vars.DEVELOP_SSH_USERNAME }}@${{ vars.DEVELOP_SSH_HOST }} "docker image prune -f"
+
+      - name: Logout from the GitHub Packages Docker Registry
+        run: ssh ${{ vars.DEVELOP_SSH_USERNAME }}@${{ vars.DEVELOP_SSH_HOST }} "docker logout ghcr.io"
